@@ -1,0 +1,54 @@
+{
+  "uuid": "A635F77E-5BC3-4312-8EAD-C637ECC83940",
+  "shortName": "Canucks Scoreboard",
+  "longName": "Scoreboard",
+  "companyName": "Tammy D",
+  "versionCode": 1,
+  "versionLabel": "1.0",
+  "watchapp": {
+    "watchface": true
+  },
+  "appKeys": {
+    "KEY_TEMPERATURE": 0,
+    "KEY_CONDITIONS": 1,
+    "KEY_CONFIG_TEMP_UNIT_F": 2
+  },
+  "capabilities": [
+    "location",
+    "configurable"
+  ],
+  "resources": {
+    "media": [
+      {
+          "menuIcon": true,
+          "type": "png",
+          "name": "IMAGE_MENU_ICON",
+          "file": "images/menu_icon.png"
+      },
+      {
+        "file": "images/canucks_background.png",
+        "name": "IMAGE_BACKGROUND",
+        "type": "png"
+      },
+      {
+        "file": "fonts/NHL Vancouver Canucks.ttf",
+        "name": "FONT_NHL_VAN_28",
+        "type": "font"
+      },
+      {
+        "file": "fonts/NHL Vancouver Canucks.ttf",
+        "name": "FONT_NHL_VAN_22",
+        "type": "font"
+      },
+      {
+        "file": "fonts/NHL Vancouver Canucks.ttf",
+        "name": "FONT_NHL_VAN_64",
+        "type": "font"
+      }
+    ]
+  },
+  "targetPlatforms": [
+    "basalt"
+  ],
+  "sdkVersion": "3"
+}
