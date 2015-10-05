@@ -4,6 +4,8 @@ var ga = new Analytics('UA-46485905-3', 'CanucksScoreboard', '1.0.0');
 
 var KEY_CONFIG_TEMP_UNIT_F = 'KEY_CONFIG_TEMP_UNIT_F';
 
+var config = {};
+
 // Page for app configuration
 Pebble.addEventListener('showConfiguration', function(e) {
   var encodeQueryData = function (data)
@@ -25,27 +27,32 @@ Pebble.addEventListener('showConfiguration', function(e) {
 
 Pebble.addEventListener('webviewclosed',
   function(e) {
-    var configuration = JSON.parse(decodeURIComponent(e.response));
-    console.log('Configuration window returned: ' + JSON.stringify(configuration));
+    if (decodeURIComponent(e.response)) {
 
-    var tempInF = configuration.tempUnitF ? true : false;
+      var configuration = JSON.parse(decodeURIComponent(e.response));
+      console.log('Configuration window returned: ' + JSON.stringify(configuration));
 
-    setToLocalStorage(KEY_CONFIG_TEMP_UNIT_F, tempInF);
+      config['tempUnitF'] = configuration.tempUnitF ? true : false;
 
-    // Send to Pebble
-    Pebble.sendAppMessage({
-      KEY_CONFIG_TEMP_UNIT_F : tempInF,
-    },
-      function(e) {
-        console.log("Sucessfully sent config");
+      setToLocalStorage(KEY_CONFIG_TEMP_UNIT_F, config['tempUnitF']);
+
+      // Send to Pebble
+      Pebble.sendAppMessage({
+        KEY_CONFIG_TEMP_UNIT_F : config['tempUnitF'],
       },
-      function(e) {
-        console.log("Error sending config info!");
-      }
-    );
+        function(e) {
+          console.log("Sucessfully sent config");
+        },
+        function(e) {
+          console.log("Error sending config info!");
+        }
+      );
+    }
+
+    console.log("Config: " + JSON.stringify(config));
 
     ga.trackEvent('config', 'closed');
-    ga.trackEvent('tempUnits', tempInF ? "F" : "C");
+    ga.trackEvent('tempUnits', config['tempUnitF'] ? "F" : "C");
     getWeather();
   }
 );
@@ -91,10 +98,18 @@ function locationSuccess(pos) {
     function(responseText) {
       // responseText contains a JSON object with weather info
       var json = JSON.parse(responseText);
+      var temperature;
 
       // Temperature in Kelvin requires adjustment
-      var temperature = Math.round(json.main.temp - 273.15);
-      console.log("Temperature is " + temperature);
+      if (config['tempUnitF']) {
+        console.log("Calculating temp in F");
+        temperature = Math.round((json.main.temp - 273.15) * 1.8 + 32);
+      } else {
+        console.log("Calculating temp in C");
+        temperature = Math.round(json.main.temp - 273.15);
+      }
+
+      console.log("Temperature is " + temperature + (config['tempUnitF'] ? "F" : "C"));
 
       // Conditions
       var conditions = json.weather[0].main;
@@ -102,6 +117,7 @@ function locationSuccess(pos) {
 
       // Assemble dictionary using our keys
       var dictionary = {
+        "KEY_CONFIG_TEMP_UNIT_F" : config['tempUnitF'],
         "KEY_TEMPERATURE": temperature,
         "KEY_CONDITIONS": conditions
       };
@@ -138,6 +154,10 @@ function getWeather() {
 Pebble.addEventListener('ready',
   function(e) {
     console.log("PebbleKit JS ready!");
+
+    config['tempUnitF'] = getFromLocalStorage(KEY_CONFIG_TEMP_UNIT_F, false);
+
+    console.log("Config: " + JSON.stringify(config));
 
     // Get the initial weather
     getWeather();

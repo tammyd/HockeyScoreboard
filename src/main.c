@@ -265,8 +265,9 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   // Store incoming information
   static char temperature_buffer[8];
   static char conditions_buffer[32];
-  static int degC = 0;
-  static int degF = 0;
+  static int temperature = 0;
+
+  bool updateWeather = false;
 
   // Read first item
   Tuple *t = dict_read_first(iterator);
@@ -276,14 +277,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     // Which key was received?
     switch(t->key) {
       case KEY_TEMPERATURE:
-        degC = (int)t->value->int32;
-        if (s_configTempF) {
-          degF = (degC * (9 / 5)) + 32;
-          snprintf(temperature_buffer, sizeof(temperature_buffer), "%dF", degF);
-        } else {
-          snprintf(temperature_buffer, sizeof(temperature_buffer), "%dC", degC);
-        }
-        text_layer_set_text(s_temperature_layer, temperature_buffer);
+        temperature = (int)t->value->int32;
+        updateWeather = true;
         break;
       case KEY_CONDITIONS:
         snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", t->value->cstring);
@@ -291,7 +286,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         break;
       case KEY_CONFIG_TEMP_UNIT_F:
         s_configTempF = (bool)t->value->int32;
-        update_weather();
+        updateWeather = true;
+        break;
       default:
         APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
         break;
@@ -299,6 +295,15 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
     // Look for next item
     t = dict_read_next(iterator);
+  }
+
+  if (updateWeather) {
+    if (s_configTempF) {
+      snprintf(temperature_buffer, sizeof(temperature_buffer), "%dF", temperature);
+    } else {
+      snprintf(temperature_buffer, sizeof(temperature_buffer), "%dC", temperature);
+    }
+    text_layer_set_text(s_temperature_layer, temperature_buffer);
   }
 }
 
