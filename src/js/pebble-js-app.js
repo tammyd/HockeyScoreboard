@@ -13,7 +13,7 @@ Pebble.addEventListener('showConfiguration', function(e) {
      }).join("&");
   };
 
-  var baseUrl = 'http://tammyd.github.io/HockeyScoreboard/config/index.html';
+  var baseUrl = 'http://tammyd.github.io/CanucksScoreboard/config/index.html';
   var params = {
     'tempUnitF' : getFromLocalStorage(KEY_CONFIG_TEMP_UNIT_F, false),
   };
