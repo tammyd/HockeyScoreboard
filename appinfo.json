@@ -1,10 +1,10 @@
 {
-  "uuid": "A635F77E-5BC3-4312-8EAD-C637ECC83940",
-  "shortName": "Canucks Scoreboard",
+  "uuid": "E89D0EFA-BC84-4E90-AD3A-B85354D1BCAC",
+  "shortName": "Hockye Scoreboard",
   "longName": "Scoreboard",
   "companyName": "Tammy D",
   "versionCode": 1,
-  "versionLabel": "1.2",
+  "versionLabel": "0.1",
   "watchapp": {
     "watchface": true
   },

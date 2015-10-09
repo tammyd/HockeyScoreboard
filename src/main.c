@@ -1,10 +1,7 @@
-// TAKE II
-
 #include <pebble.h>
 
-#define KEY_TEMPERATURE 0
-#define KEY_CONDITIONS 1
-#define KEY_CONFIG_TEMP_UNIT_F 2
+#include "helpers.h"
+#include "teams.h"
 
 static Window      *s_main_window;        // main window
 static TextLayer   *s_conditions_layer;   // text layer displaying conditions
@@ -21,9 +18,29 @@ static GFont        s_temperature_font;   // font used to display temperature
 static GFont        s_date_font;          // date display font
 static GFont        s_colon_font;         // time colon display font
 static GBitmap     *s_background_image;   // background image
-static BitmapLayer *s_background_layer;   // background image container
+static Layer       *s_background_layer;   // background image container
 
-static bool s_configTempF = false;
+enum DataKeys {
+  KEY_TEMPERATURE = 0,
+  KEY_CONDITIONS = 1,
+  KEY_CONFIG_TEMP_UNIT_F = 2
+};
+
+enum Teams {
+  VAN = 0,
+  CGY = 1
+};
+
+typedef struct {
+  bool tempC;
+  int team;
+} __attribute__((__packed__)) SettingsData;
+
+SettingsData settings = {
+  .tempC = true,
+  .team = VAN
+};
+
 
 // define all the fonts used
 static void load_fonts() {
@@ -34,13 +51,46 @@ static void load_fonts() {
   s_colon_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
 }
 
+
+static void draw_background(Layer *layer, GContext *ctx) {
+  
+  switch(settings.team) {
+    default:
+    case VAN:
+      VAN_draw_background(layer, ctx); break;
+  }
+  
+  
+  // GRect bounds = layer_get_bounds(layer);
+  // GColor blue = GColorFromRGB(13, 23, 154);
+  // GColor green = GColorFromRGB(30, 70, 13);
+  
+  
+  // graphics_context_set_fill_color(ctx, blue);
+  // graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+  
+  // //draw white stripes
+  // graphics_context_set_stroke_color(ctx, GColorWhite);
+  // draw_box(layer, ctx, 4, 4, 2);
+  // draw_box(layer, ctx, 12, 12, 2);
+  // graphics_draw_line(ctx, GPoint(14,88), GPoint(129,88));
+  // graphics_draw_line(ctx, GPoint(14,125), GPoint(129,125));
+  
+  // //draw green stripes
+  // graphics_context_set_stroke_color(ctx, green);
+  // draw_box(layer, ctx, 6, 6, 6);
+  
+  // //graphics_draw_rect(ctx, GRect(4,4, bounds.size.w-8, bounds.size.h - 8)); //GRect: x,y,w,h
+}
+
 // build up the pieces that make up background layer
 static void create_background_layer() {
-  s_background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
-  s_background_layer = bitmap_layer_create(GRect(0, 0, 144, 168));
-  bitmap_layer_set_bitmap(s_background_layer, s_background_image);
+  s_background_layer = layer_create(GRect(0, 0, 144, 168));
+  layer_set_update_proc(s_background_layer, draw_background);
 
 }
+
+
 
 // build up the pieces that display the weather information
 static void create_weather_layer() {
@@ -186,7 +236,7 @@ static void main_window_load(Window *window) {
   create_temperature_layer();
 
   // Add each layer as a child layer to the Window's root layer
-  layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_background_layer));
+  layer_add_child(window_get_root_layer(window), s_background_layer);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_hour_layer0));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_hour_layer1));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_min_layer0));
@@ -215,7 +265,8 @@ static void unload_temperature_layer() {
 
 // Cleanup background data structures
 static void unload_background_layer() {
-  bitmap_layer_destroy(s_background_layer);
+  // bitmap_layer_destroy(s_background_layer);
+  layer_destroy(s_background_layer);
   gbitmap_destroy(s_background_image);
 }
 
@@ -285,7 +336,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         text_layer_set_text(s_conditions_layer, conditions_buffer);
         break;
       case KEY_CONFIG_TEMP_UNIT_F:
-        s_configTempF = (bool)t->value->int32;
+        settings.tempC = !(bool)t->value->int32;
         updateWeather = true;
         break;
       default:
@@ -298,10 +349,10 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   }
 
   if (updateWeather) {
-    if (s_configTempF) {
-      snprintf(temperature_buffer, sizeof(temperature_buffer), "%dF", temperature);
-    } else {
+    if (settings.tempC) {
       snprintf(temperature_buffer, sizeof(temperature_buffer), "%dC", temperature);
+    } else {
+      snprintf(temperature_buffer, sizeof(temperature_buffer), "%dF", temperature);
     }
     text_layer_set_text(s_temperature_layer, temperature_buffer);
   }
