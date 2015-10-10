@@ -32,11 +32,17 @@ var config = function() {
 
   var init = function() {
     $("[id='tempSwitch']").bootstrapSwitch('state', getBoolQueryParam('tempUnitF', false));
+    $("select.image-picker").imagepicker({
+        hide_select : false,
+        show_label  : true
+    });
+    $('.selectpicker').selectpicker();
   };
 
   var get = function() {
     var data = {
       tempUnitF: $("[id='tempSwitch']").bootstrapSwitch('state'),
+      team: $("select.image-picker").data('picker').selected_values()[0]
     };
     console.log(JSON.stringify(data));
     return data;

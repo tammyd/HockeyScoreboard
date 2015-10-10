@@ -16,48 +16,110 @@ static TextLayer   *s_colon_layer;        // text layer displaying colon
 static TextLayer   *s_date_layer;         // text layer
 static TextLayer   *s_temperature_layer;  // text layer displaying temperature
 static GFont        s_time_font;          // time display font
-static GFont        s_conditions_font;    // conditions display font
-static GFont        s_temperature_font;   // font used to display temperature
+static GFont        s_weather_font;       // weather display font
 static GFont        s_date_font;          // date display font
 static GFont        s_colon_font;         // time colon display font
 static GBitmap     *s_background_image;   // background image
+<<<<<<< Updated upstream
 static BitmapLayer *s_background_layer;   // background image container
 
 static bool s_configTempF = false;
+=======
+static Layer       *s_background_layer;   // background image container
+
+enum DataKeys {
+  KEY_TEMPERATURE = 0,
+  KEY_CONDITIONS = 1,
+  KEY_CONFIG_TEAM = 2,
+  KEY_CONFIG_TEMP_UNIT_F = 3
+};
+
+enum Teams {
+  VAN = 0,
+  CGY = 1
+};
+
+typedef struct {
+  bool tempC;
+  int team;
+  GColor8 textColor;
+} __attribute__((__packed__)) SettingsData;
+
+SettingsData settings = {
+  .tempC = true,
+  .team = VAN
+};
+
+static void configure_team_settings() {
+  switch(settings.team) {
+    default:
+    case VAN:
+      settings.textColor = GColorWhite; break;
+    case CGY:
+      settings.textColor = GColorWhite; break;
+  }
+}
+
+>>>>>>> Stashed changes
 
 // define all the fonts used
 static void load_fonts() {
-  s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_NHL_VAN_64));
-  s_date_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_NHL_VAN_28));
-  s_conditions_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_NHL_VAN_22));
-  s_temperature_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_NHL_VAN_22));
+  switch(settings.team) {
+    default:
+    case VAN:
+      VAN_load_fonts(&s_time_font, &s_date_font, &s_weather_font); break;
+    case CGY:
+      CGY_load_fonts(&s_time_font, &s_date_font, &s_weather_font); break;
+  }
+  
   s_colon_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
 }
 
+<<<<<<< Updated upstream
 // build up the pieces that make up background layer
 static void create_background_layer() {
   s_background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
   s_background_layer = bitmap_layer_create(GRect(0, 0, 144, 168));
   bitmap_layer_set_bitmap(s_background_layer, s_background_image);
 
+=======
+
+static void draw_background(Layer *layer, GContext *ctx) {
+  
+  switch(settings.team) {
+    default:
+    case VAN:
+      VAN_draw_background(layer, ctx); break;
+    case CGY:
+      CGY_draw_background(layer, ctx); break;
+  }
+  
+ 
+}
+
+// build up the pieces that make up background layer
+static void create_background_layer() {
+  s_background_layer = layer_create(GRect(0, 0, 144, 168));
+  layer_set_update_proc(s_background_layer, draw_background);
+>>>>>>> Stashed changes
 }
 
 // build up the pieces that display the weather information
 static void create_weather_layer() {
   s_conditions_layer = text_layer_create(GRect(18, 126, 108, 50));
   text_layer_set_background_color(s_conditions_layer, GColorClear);
-  text_layer_set_text_color(s_conditions_layer, GColorWhite);
+  text_layer_set_text_color(s_conditions_layer, settings.textColor);
   text_layer_set_text_alignment(s_conditions_layer, GTextAlignmentRight);
-  text_layer_set_font(s_conditions_layer, s_conditions_font);
+  text_layer_set_font(s_conditions_layer, s_weather_font);
   text_layer_set_text(s_conditions_layer, "    ");
 }
 
 static void create_temperature_layer() {
   s_temperature_layer = text_layer_create(GRect(22, 126, 30, 50)); //GRect: x,y,w,h
   text_layer_set_background_color(s_temperature_layer, GColorClear);
-  text_layer_set_text_color(s_temperature_layer, GColorWhite);
+  text_layer_set_text_color(s_temperature_layer, settings.textColor);
   text_layer_set_text_alignment(s_temperature_layer, GTextAlignmentLeft);
-  text_layer_set_font(s_temperature_layer, s_conditions_font);
+  text_layer_set_font(s_temperature_layer, s_weather_font);
   text_layer_set_text(s_temperature_layer, "    ");
 }
 
@@ -74,10 +136,10 @@ static void create_time_layer() {
   text_layer_set_background_color(s_hour_layer1, GColorClear);
   text_layer_set_background_color(s_min_layer0, GColorClear);
   text_layer_set_background_color(s_min_layer1, GColorClear);
-  text_layer_set_text_color(s_hour_layer0, GColorWhite);
-  text_layer_set_text_color(s_hour_layer1, GColorWhite);
-  text_layer_set_text_color(s_min_layer0, GColorWhite);
-  text_layer_set_text_color(s_min_layer1, GColorWhite);
+  text_layer_set_text_color(s_hour_layer0, settings.textColor);
+  text_layer_set_text_color(s_hour_layer1, settings.textColor);
+  text_layer_set_text_color(s_min_layer0, settings.textColor);
+  text_layer_set_text_color(s_min_layer1, settings.textColor);
   text_layer_set_text(s_hour_layer0, " ");
   text_layer_set_text(s_hour_layer1, " ");
   text_layer_set_text(s_min_layer0, "  ");
@@ -93,7 +155,7 @@ static void create_time_layer() {
 
   s_colon_layer = text_layer_create(GRect(68, 30, 6, 70));
   text_layer_set_background_color(s_colon_layer, GColorClear);
-  text_layer_set_text_color(s_colon_layer, GColorWhite);
+  text_layer_set_text_color(s_colon_layer, settings.textColor);
   text_layer_set_font(s_colon_layer, s_colon_font);
   text_layer_set_text(s_colon_layer, ":");
   text_layer_set_text_alignment(s_colon_layer, GTextAlignmentCenter);
@@ -102,9 +164,9 @@ static void create_time_layer() {
 
 // build up the pieces that display the date information
 static void create_date_layer() {
-  s_date_layer = text_layer_create(GRect(0, 88, 144, 50));
+  s_date_layer = text_layer_create(GRect(0, 88, 144, 30));
   text_layer_set_background_color(s_date_layer, GColorClear);
-  text_layer_set_text_color(s_date_layer, GColorWhite);
+  text_layer_set_text_color(s_date_layer, settings.textColor);
   text_layer_set_text(s_date_layer, "... ... ..");
   text_layer_set_font(s_date_layer, s_date_font);
   text_layer_set_text_alignment(s_date_layer, GTextAlignmentCenter);
@@ -176,14 +238,20 @@ static void update_time() {
 }
 
 
-// Load up the main window
-static void main_window_load(Window *window) {
+static void build_team_layout() {
+  configure_team_settings();
   load_fonts();
   create_time_layer();
   create_background_layer();
   create_weather_layer();
   create_date_layer();
   create_temperature_layer();
+}
+
+
+// Load up the main window
+static void main_window_load(Window *window) {
+  build_team_layout();
 
   // Add each layer as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_background_layer));
@@ -210,7 +278,7 @@ static void unload_time_layer() {
 
 static void unload_temperature_layer() {
   text_layer_destroy(s_temperature_layer);
-  fonts_unload_custom_font(s_temperature_font);
+  fonts_unload_custom_font(s_weather_font);
 }
 
 // Cleanup background data structures
@@ -222,7 +290,7 @@ static void unload_background_layer() {
 // Cleanup weather data structures
 static void unload_weather_layer() {
   text_layer_destroy(s_conditions_layer);
-  fonts_unload_custom_font(s_conditions_font);
+  fonts_unload_custom_font(s_weather_font);
 }
 
 // Cleanup date data structures
@@ -261,6 +329,17 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   }
 }
 
+static int convert_team_to_enum(char *team) {
+  if (strcmp(team,"VAN") != 0) {
+    return VAN;
+  }
+  if (strcmp(team,"CGY") != 0) {
+    return CGY;
+  }
+  
+  return 0;
+}
+
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   // Store incoming information
   static char temperature_buffer[8];
@@ -288,6 +367,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         s_configTempF = (bool)t->value->int32;
         updateWeather = true;
         break;
+      case KEY_CONFIG_TEAM:
+        settings.team = convert_team_to_enum(t->value->cstring)
       default:
         APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
         break;

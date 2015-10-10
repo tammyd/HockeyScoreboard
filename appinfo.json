@@ -11,7 +11,8 @@
   "appKeys": {
     "KEY_TEMPERATURE": 0,
     "KEY_CONDITIONS": 1,
-    "KEY_CONFIG_TEMP_UNIT_F": 2
+    "KEY_CONFIG_TEAM": 2, 
+    "KEY_CONFIG_TEMP_UNIT_F": 3
   },
   "capabilities": [
     "location",
@@ -26,11 +27,6 @@
           "file": "images/menu_icon.png"
       },
       {
-        "file": "images/canucks_background.png",
-        "name": "IMAGE_BACKGROUND",
-        "type": "png"
-      },
-      {
         "file": "fonts/NHL Vancouver Canucks.ttf",
         "name": "FONT_NHL_VAN_28",
         "type": "font"
@@ -43,7 +39,24 @@
       {
         "file": "fonts/NHL Vancouver Canucks.ttf",
         "name": "FONT_NHL_VAN_64",
+        "type": "font",
+        "characterRegex": "[0-9]"
+      },
+      {
+        "file": "fonts/NHL Calgary Flames Alt.ttf",
+        "name": "FONT_NHL_CGY_26",
         "type": "font"
+      },
+      {
+        "file": "fonts/NHL Calgary Flames Alt.ttf",
+        "name": "FONT_NHL_CGY_22",
+        "type": "font"
+      },
+      {
+        "file": "fonts/NHL Calgary Flames Alt.ttf",
+        "name": "FONT_NHL_CGY_60",
+        "type": "font",
+        "characterRegex": "[0-9]"
       }
     ]
   },

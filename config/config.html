@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta content="Hockey Scoreboard for Pebble Time -- Congfiguration" name="description">
+    <meta content="Tammy D" name="author">
+
+    <title>Hockey Scoreboard</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-switch.min.css" rel="stylesheet">
+    <link href="css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="css/image-picker.css" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Hockey Scoreboard</a>
+        </div>
+<!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container container__content">
+<!-- @TODO - put banner of screenshots -->
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Settings</h3>
+        </div>
+        <div class="panel-body">
+          <form>
+          <div class="row">
+            <div class="col-xs-9"><label>Temperature Units:</label></div>
+            <div class="col-xs-3">
+              <p class='pull-right'>
+                <input checked
+                  data-on-text="°F"
+                  data-off-text="°C"
+                  data-on-color='success'
+                  data-off-color='info'
+                  id="tempSwitch"
+                  type="checkbox"
+                  data-label-width=24
+                  data-handle-width=24
+                  >
+              </p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12"><label>NHL Team:</label></div>
+            <div class="col-xs-12">
+              <select class="image-picker selectpicker">
+                <option
+                  data-img-label="<div class='text-center'><strong>Vancouver Canucks</strong></div>"
+                  data-img-src="../resources/images/screenshots/pebble_screenshot_2015-10-04_20-02-56.png" value="VAN">
+                  Vancouver Canucks
+                </option>
+                <option
+                  data-img-label="<div class='text-center'><strong>Calgary Flames</strong></div>"
+                  data-img-src="../resources/images/screenshots/pebble_screenshot_2015-10-04_20-02-56.png" value="CGY">
+                    Calgary Flames
+                </option>
+              </select>
+          </div>
+
+          <button type="submit" onclick="return config.submit()" class="btn btn-default pull-left">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div> <!-- /.container -->
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="js/bootstrap-switch.min.js"></script>
+    <script src="js/bootstrap-select.min.js"></script>
+    <script src="js/image-picker.min.js"></script>
+    <script src="js/hockeyscoreboard.js"></script>
+  </body>
+</html>

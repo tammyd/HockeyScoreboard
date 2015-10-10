@@ -3,6 +3,7 @@ var Analytics=function(t,e,a){this.analyticsId=t,this.appName=e,this.appVersion=
 var ga = new Analytics('UA-46485905-3', 'CanucksScoreboard', '1.0.0');
 
 var KEY_CONFIG_TEMP_UNIT_F = 'KEY_CONFIG_TEMP_UNIT_F';
+var KEY_CONFIG_TEAM = 'KEY_CONFIG_TEAM';
 
 var config = {};
 
@@ -15,9 +16,10 @@ Pebble.addEventListener('showConfiguration', function(e) {
      }).join("&");
   };
 
-  var baseUrl = 'http://tammyd.github.io/CanucksScoreboard/config/index.html';
+  var baseUrl = 'http://tammyd.github.io/HockeyScoreboard/config/config.html';
   var params = {
     'tempUnitF' : getFromLocalStorage(KEY_CONFIG_TEMP_UNIT_F, false),
+    'team' : getFromLocalStorage(KEY_CONFIG_TEAM, "VAN"), 
   };
   var url = baseUrl + "?" + encodeQueryData(params);
   console.log("Loading: " + url);
@@ -33,12 +35,15 @@ Pebble.addEventListener('webviewclosed',
       console.log('Configuration window returned: ' + JSON.stringify(configuration));
 
       config['tempUnitF'] = configuration.tempUnitF ? true : false;
+      config['team'] = configuration.team;
 
       setToLocalStorage(KEY_CONFIG_TEMP_UNIT_F, config['tempUnitF']);
+      setToLocalStorage(KEY_CONFIG_TEAM, config['team']);
 
       // Send to Pebble
       Pebble.sendAppMessage({
         KEY_CONFIG_TEMP_UNIT_F : config['tempUnitF'],
+        KEY_CONFIG_TEAM : config['team']
       },
         function(e) {
           console.log("Sucessfully sent config");
@@ -86,10 +91,21 @@ var xhrRequest = function (url, type, callback) {
   xhr.send();
 };
 
+var getApiKey = function() {
+  
+  var keys = [
+    'ae018a0ee8d729fce80c45a60e805b51', 
+    'e13621344541dc8765b09008d033f769'
+  ]
+  
+  return keys[Math.floor(Math.random() * keys.length)];
+  
+}
+
 function locationSuccess(pos) {
   // Construct URL
   var url = "http://api.openweathermap.org/data/2.5/weather?lat=" +
-      pos.coords.latitude + "&lon=" + pos.coords.longitude;
+      pos.coords.latitude + "&lon=" + pos.coords.longitude + "&APPID=" + getApiKey();
 
   console.log(url);
 
