@@ -5,7 +5,6 @@ void draw_seperator_lines(Layer *layer, GContext *ctx) {
   graphics_draw_line(ctx, GPoint(14,125), GPoint(129,125));
 }
 
-
 void VAN_draw_background(Layer *layer, GContext *ctx) {
 	
 	//setup

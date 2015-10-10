@@ -1,10 +1,7 @@
-// TAKE II
-
 #include <pebble.h>
 
-#define KEY_TEMPERATURE 0
-#define KEY_CONDITIONS 1
-#define KEY_CONFIG_TEMP_UNIT_F 2
+#include "helpers.h"
+#include "teams.h"
 
 static Window      *s_main_window;        // main window
 static TextLayer   *s_conditions_layer;   // text layer displaying conditions
@@ -20,11 +17,6 @@ static GFont        s_weather_font;       // weather display font
 static GFont        s_date_font;          // date display font
 static GFont        s_colon_font;         // time colon display font
 static GBitmap     *s_background_image;   // background image
-<<<<<<< Updated upstream
-static BitmapLayer *s_background_layer;   // background image container
-
-static bool s_configTempF = false;
-=======
 static Layer       *s_background_layer;   // background image container
 
 enum DataKeys {
@@ -60,7 +52,6 @@ static void configure_team_settings() {
   }
 }
 
->>>>>>> Stashed changes
 
 // define all the fonts used
 static void load_fonts() {
@@ -71,21 +62,13 @@ static void load_fonts() {
     case CGY:
       CGY_load_fonts(&s_time_font, &s_date_font, &s_weather_font); break;
   }
-  
+
   s_colon_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
 }
 
-<<<<<<< Updated upstream
-// build up the pieces that make up background layer
-static void create_background_layer() {
-  s_background_image = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
-  s_background_layer = bitmap_layer_create(GRect(0, 0, 144, 168));
-  bitmap_layer_set_bitmap(s_background_layer, s_background_image);
-
-=======
 
 static void draw_background(Layer *layer, GContext *ctx) {
-  
+
   switch(settings.team) {
     default:
     case VAN:
@@ -93,20 +76,32 @@ static void draw_background(Layer *layer, GContext *ctx) {
     case CGY:
       CGY_draw_background(layer, ctx); break;
   }
-  
- 
 }
 
 // build up the pieces that make up background layer
 static void create_background_layer() {
   s_background_layer = layer_create(GRect(0, 0, 144, 168));
   layer_set_update_proc(s_background_layer, draw_background);
->>>>>>> Stashed changes
 }
 
-// build up the pieces that display the weather information
-static void create_weather_layer() {
+static void create_layers() {
+  create_background_layer();
   s_conditions_layer = text_layer_create(GRect(18, 126, 108, 50));
+  s_temperature_layer = text_layer_create(GRect(22, 126, 30, 50)); //GRect: x,y,w,h
+  
+  //time layers
+  s_hour_layer0 = text_layer_create(GRect(22, 10, 30, 70)); //GRect: x,y,w,h
+  s_hour_layer1 = text_layer_create(GRect(45, 10, 30, 70)); //GRect: x,y,w,h
+  s_min_layer0 = text_layer_create(GRect(76, 10, 30, 70));
+  s_min_layer1 = text_layer_create(GRect(99, 10, 30, 70));
+  s_colon_layer = text_layer_create(GRect(68, 30, 6, 70));
+  
+  s_date_layer = text_layer_create(GRect(0, 88, 144, 30));
+}
+
+
+// build up the pieces that display the weather information
+static void define_weather_layer() {
   text_layer_set_background_color(s_conditions_layer, GColorClear);
   text_layer_set_text_color(s_conditions_layer, settings.textColor);
   text_layer_set_text_alignment(s_conditions_layer, GTextAlignmentRight);
@@ -114,8 +109,7 @@ static void create_weather_layer() {
   text_layer_set_text(s_conditions_layer, "    ");
 }
 
-static void create_temperature_layer() {
-  s_temperature_layer = text_layer_create(GRect(22, 126, 30, 50)); //GRect: x,y,w,h
+static void define_temperature_layer() {
   text_layer_set_background_color(s_temperature_layer, GColorClear);
   text_layer_set_text_color(s_temperature_layer, settings.textColor);
   text_layer_set_text_alignment(s_temperature_layer, GTextAlignmentLeft);
@@ -124,14 +118,8 @@ static void create_temperature_layer() {
 }
 
 // build up the pieces that display the time information
-static void create_time_layer() {
-
-  s_hour_layer0 = text_layer_create(GRect(22, 10, 30, 70)); //GRect: x,y,w,h
-  s_hour_layer1 = text_layer_create(GRect(45, 10, 30, 70)); //GRect: x,y,w,h
-
-  s_min_layer0 = text_layer_create(GRect(76, 10, 30, 70));
-  s_min_layer1 = text_layer_create(GRect(99, 10, 30, 70));
-
+static void define_time_layer() {
+  
   text_layer_set_background_color(s_hour_layer0, GColorClear);
   text_layer_set_background_color(s_hour_layer1, GColorClear);
   text_layer_set_background_color(s_min_layer0, GColorClear);
@@ -153,7 +141,7 @@ static void create_time_layer() {
   text_layer_set_text_alignment(s_min_layer0, GTextAlignmentLeft);
   text_layer_set_text_alignment(s_min_layer1, GTextAlignmentLeft);
 
-  s_colon_layer = text_layer_create(GRect(68, 30, 6, 70));
+ 
   text_layer_set_background_color(s_colon_layer, GColorClear);
   text_layer_set_text_color(s_colon_layer, settings.textColor);
   text_layer_set_font(s_colon_layer, s_colon_font);
@@ -163,14 +151,21 @@ static void create_time_layer() {
 }
 
 // build up the pieces that display the date information
-static void create_date_layer() {
-  s_date_layer = text_layer_create(GRect(0, 88, 144, 30));
+static void define_date_layer() {
+  
   text_layer_set_background_color(s_date_layer, GColorClear);
   text_layer_set_text_color(s_date_layer, settings.textColor);
   text_layer_set_text(s_date_layer, "... ... ..");
   text_layer_set_font(s_date_layer, s_date_font);
   text_layer_set_text_alignment(s_date_layer, GTextAlignmentCenter);
 }
+
+static void define_layers() {
+  define_weather_layer();
+  define_temperature_layer();
+  define_time_layer();
+}
+
 
 // update the date text
 static void update_date() {
@@ -241,20 +236,17 @@ static void update_time() {
 static void build_team_layout() {
   configure_team_settings();
   load_fonts();
-  create_time_layer();
-  create_background_layer();
-  create_weather_layer();
-  create_date_layer();
-  create_temperature_layer();
+  define_layers();
 }
 
 
 // Load up the main window
 static void main_window_load(Window *window) {
+  create_layers();
   build_team_layout();
 
   // Add each layer as a child layer to the Window's root layer
-  layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_background_layer));
+  layer_add_child(window_get_root_layer(window), s_background_layer);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_hour_layer0));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_hour_layer1));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_min_layer0));
@@ -283,7 +275,8 @@ static void unload_temperature_layer() {
 
 // Cleanup background data structures
 static void unload_background_layer() {
-  bitmap_layer_destroy(s_background_layer);
+  // bitmap_layer_destroy(s_background_layer);
+  layer_destroy(s_background_layer);
   gbitmap_destroy(s_background_image);
 }
 
@@ -336,7 +329,7 @@ static int convert_team_to_enum(char *team) {
   if (strcmp(team,"CGY") != 0) {
     return CGY;
   }
-  
+
   return 0;
 }
 
@@ -364,11 +357,13 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         text_layer_set_text(s_conditions_layer, conditions_buffer);
         break;
       case KEY_CONFIG_TEMP_UNIT_F:
-        s_configTempF = (bool)t->value->int32;
+        settings.tempC = !(bool)t->value->int32;
         updateWeather = true;
         break;
       case KEY_CONFIG_TEAM:
-        settings.team = convert_team_to_enum(t->value->cstring)
+        settings.team = convert_team_to_enum(t->value->cstring);
+        build_team_layout();
+        break;
       default:
         APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
         break;
@@ -379,10 +374,10 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   }
 
   if (updateWeather) {
-    if (s_configTempF) {
-      snprintf(temperature_buffer, sizeof(temperature_buffer), "%dF", temperature);
-    } else {
+    if (settings.tempC) {
       snprintf(temperature_buffer, sizeof(temperature_buffer), "%dC", temperature);
+    } else {
+      snprintf(temperature_buffer, sizeof(temperature_buffer), "%dF", temperature);
     }
     text_layer_set_text(s_temperature_layer, temperature_buffer);
   }
